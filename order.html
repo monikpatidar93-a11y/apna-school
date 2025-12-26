@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Place Order</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="navbar">
+    <h2>Flipkart</h2>
+    <a href="cart.html">Cart</a>
+    <span id="user-info"></span>
+    <button id="logout-btn">Logout</button>
+</div>
+
+<div style="max-width:500px;margin:50px auto;background:white;padding:20px;border-radius:8px;">
+    <h2>Place Your Order</h2>
+    <input type="text" id="name" placeholder="Full Name" style="width:100%;padding:10px;margin:10px 0;">
+    <input type="email" id="email" placeholder="Email" style="width:100%;padding:10px;margin:10px 0;">
+    <input type="text" id="address" placeholder="Address" style="width:100%;padding:10px;margin:10px 0;">
+    <button onclick="placeOrder()" style="width:100%;padding:10px;background:#ff9800;color:white;border:none;border-radius:5px;">Place Order</button>
+</div>
+
+<script>
+function placeOrder(){
+    const name = document.getElementById("name").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const address = document.getElementById("address").value.trim();
+    if(!name || !email || !address){
+        return alert("Please fill all fields");
+    }
+    alert("Order placed successfully!\nCheck your email: " + email);
+    localStorage.removeItem("cart");
+    window.location.href = "index.html";
+}
+</script>
+
+<script src="script.js"></script>
+</body>
+</html>

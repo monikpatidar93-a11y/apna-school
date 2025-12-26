@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Checkout - Mini Flipkart</title>
+<link rel="stylesheet" href="style.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body { font-family: Arial, sans-serif; margin:0; background:#f1f3f6; }
+.navbar { background:#2874f0; color:white; padding:12px 20px; display:flex; align-items:center; gap:15px; }
+.navbar h2{ margin:0; }
+.navbar input{ flex:1; padding:8px; border-radius:4px; border:none; }
+.navbar a{ color:white; text-decoration:none; font-weight:bold; }
+.checkout-container{ max-width:800px; margin:30px auto; background:white; padding:20px; border-radius:8px; }
+.checkout-container h2{ text-align:center; margin-bottom:20px; }
+.cart-item{ display:flex; gap:20px; align-items:center; margin-bottom:15px; }
+.cart-item img{ width:80px; height:80px; object-fit:contain; }
+.cart-item h4{ margin:0; }
+.cart-total{ text-align:right; font-size:20px; font-weight:bold; margin-top:20px; }
+#placeOrderBtn{ padding:12px 20px; background:#ff3f6c; color:white; border:none; border-radius:5px; cursor:pointer; margin-top:20px; display:block; width:100%; font-size:16px; }
+</style>
+</head>
+<body>
+
+<div class="navbar">
+    <h2>Flipkart</h2>
+    <a href="cart.html">Cart</a>
+</div>
+
+<div class="checkout-container">
+    <h2>Checkout</h2>
+    <div id="checkout-list"></div>
+    <h3 class="cart-total" id="total"></h3>
+    <button id="placeOrderBtn">Place Order</button>
+</div>
+
+<script>
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
+const checkoutList = document.getElementById("checkout-list");
+const totalEl = document.getElementById("total");
+
+function renderCheckout(){
+    checkoutList.innerHTML = "";
+    let total = 0;
+    cart.forEach((p,i)=>{
+        total += p.price * p.quantity;
+        const div = document.createElement("div");
+        div.className="cart-item";
+        div.innerHTML = `
+            <img src="${p.image}" alt="${p.name}">
+            <div>
+                <h4>${p.name}</h4>
+                <p>₹${p.price} x ${p.quantity}</p>
+            </div>
+        `;
+        checkoutList.appendChild(div);
+    });
+    totalEl.innerText = "Total: ₹"+total;
+}
+
+renderCheckout();
+
+document.getElementById("placeOrderBtn").onclick = ()=>{
+    if(cart.length===0){ alert("Your cart is empty!"); return; }
+    localStorage.removeItem("cart");
+    alert("✅ Order Placed Successfully!");
+    window.location.href="order-success.html";
+}
+</script>
+
+</body>
+</html>

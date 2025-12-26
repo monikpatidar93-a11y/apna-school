@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Sign In</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body{margin:0;font-family:Arial;background:#f1f3f6;display:flex;justify-content:center;align-items:center;height:100vh;}
+.container{background:white;padding:30px;border-radius:8px;box-shadow:0 4px 15px rgba(0,0,0,0.2);width:300px;}
+h2{text-align:center;margin-bottom:20px;}
+input{width:100%;padding:8px;margin:8px 0;border-radius:4px;border:1px solid #ccc;}
+button{width:100%;padding:10px;background:#2874f0;color:white;border:none;border-radius:4px;cursor:pointer;margin-top:10px;}
+button:hover{background:#ff9f00;}
+p{text-align:center;}
+</style>
+</head>
+<body>
+<div class="container">
+<h2>Sign In</h2>
+<input type="text" id="username" placeholder="Username">
+<input type="password" id="password" placeholder="Password">
+<button onclick="signin()">Sign In</button>
+<p>New user? <a href="signup.html">Sign Up</a></p>
+</div>
+<script>
+function signin(){
+let username=document.getElementById("username").value.trim();
+let password=document.getElementById("password").value.trim();
+let users=JSON.parse(localStorage.getItem("users"))||[];
+let user=users.find(u=>u.username===username && u.password===password);
+if(!user){alert("Invalid credentials"); return;}
+localStorage.setItem("currentUser",JSON.stringify({username}));
+alert("Login Successful");
+window.location.href="index.html";
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Offers & Deals</title>
+<link rel="stylesheet" href="style.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f1f3f6;
+}
+
+/* Navbar */
+.navbar {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    background-color: #2874f0;
+    color: white;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.navbar h2 {
+    margin: 0;
+}
+.navbar input {
+    flex: 1;
+    padding: 8px;
+    border-radius: 4px;
+    border: none;
+}
+.navbar a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+/* Offers Section */
+.offers-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    padding: 20px;
+}
+.offer-card {
+    background: white;
+    width: 250px;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+    text-align: center;
+}
+.offer-card img {
+    width: 100%;
+    border-radius: 6px;
+}
+.offer-card h4 {
+    margin: 10px 0 5px;
+}
+.offer-card p {
+    color: #ff3f6c;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+.offer-card button {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    background-color: #ff9f00;
+    color: white;
+    cursor: pointer;
+}
+</style>
+</head>
+<body>
+
+<div class="navbar">
+    <h2>Flipkart</h2>
+    <input type="text" id="searchInput" placeholder="Search products...">
+    <button onclick="searchProduct()">Search</button>
+    <span id="user-info"></span>
+    <a href="cart.html">Cart</a>
+    <a href="wishlist.html">Wishlist</a>
+    <button id="logout-btn">Logout</button>
+</div>
+
+<h2 style="text-align:center; margin-top:20px;">Today's Offers & Deals</h2>
+<div class="offers-container" id="offers-container"></div>
+
+<script>
+document.addEventListener("DOMContentLoaded", ()=>{
+    const offersContainer = document.getElementById("offers-container");
+
+    // Sample offers (can be fetched from localStorage or API later)
+    const offers = [
+        {id:1, name:"Smartphone Offer", price:"₹15,999", image:"https://rukminim2.flixcart.com/image/312/312/xif0q/smartphone.jpg"},
+        {id:2, name:"Laptop Deal", price:"₹45,999", image:"https://rukminim2.flixcart.com/image/312/312/laptop.jpg"},
+        {id:3, name:"Headphones Discount", price:"₹1,999", image:"https://rukminim2.flixcart.com/image/312/312/headphones.jpg"},
+        {id:4, name:"Smartwatch Sale", price:"₹4,499", image:"https://rukminim2.flixcart.com/image/312/312/smartwatch.jpg"},
+    ];
+
+    offers.forEach(offer=>{
+        const div = document.createElement("div");
+        div.className = "offer-card";
+        div.innerHTML = `
+            <img src="${offer.image}" alt="${offer.name}">
+            <h4>${offer.name}</h4>
+            <p>${offer.price}</p>
+            <button onclick="addToCart(${offer.id})">Add to Cart</button>
+        `;
+        offersContainer.appendChild(div);
+    });
+
+    // Navbar user info
+    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+    const userInfo = document.getElementById("user-info");
+    const logoutBtn = document.getElementById("logout-btn");
+
+    if(userInfo){
+        if(currentUser) userInfo.innerText = "Welcome, "+currentUser.username;
+        else userInfo.innerHTML = `<a href="signin.html" style="color:white;">Sign In</a>`;
+    }
+
+    if(logoutBtn){
+        logoutBtn.onclick = ()=>{
+            localStorage.removeItem("currentUser");
+            location.reload();
+        }
+    }
+
+    // Add offer to cart
+    window.addToCart = function(id){
+        const offer = offers.find(o=>o.id===id);
+        if(!offer) return;
+
+        let cart = JSON.parse(localStorage.getItem("cart")) || [];
+        const found = cart.find(p=>p.id === id);
+        if(found) found.quantity += 1;
+        else cart.push({...offer, quantity:1});
+        localStorage.setItem("cart", JSON.stringify(cart));
+        alert("Offer added to cart 🛒");
+    }
+
+    // Search function
+    window.searchProduct = function(){
+        const input = document.getElementById("searchInput");
+        const keyword = input.value.trim().toLowerCase();
+        if(!keyword) return alert("Enter product name");
+
+        const products = JSON.parse(localStorage.getItem("products")) || [];
+        const results = products.filter(p=> p.name.toLowerCase().includes(keyword));
+        localStorage.setItem("searchResults", JSON.stringify(results));
+        localStorage.setItem("lastSearch", keyword);
+        window.location.href = "search.html";
+    }
+});
+</script>
+
+</body>
+</html>

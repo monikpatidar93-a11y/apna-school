@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Profile - Mini Flipkart</title>
+<link rel="stylesheet" href="style.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body{ font-family:Arial, sans-serif; margin:0; background:#f1f3f6; }
+.navbar{ background:#2874f0; color:white; padding:12px 20px; display:flex; align-items:center; gap:15px; }
+.navbar h2{ margin:0; }
+.navbar a{ color:white; text-decoration:none; font-weight:bold; }
+
+.profile-container{ max-width:600px; margin:30px auto; background:white; padding:20px; border-radius:8px; }
+.profile-container h2{ text-align:center; margin-bottom:20px; }
+.profile-info p{ font-size:18px; margin:10px 0; }
+</style>
+</head>
+<body>
+
+<div class="navbar">
+    <h2>Flipkart</h2>
+    <a href="cart.html">Cart</a>
+</div>
+
+<div class="profile-container">
+    <h2>User Profile</h2>
+    <div class="profile-info" id="profile-info"></div>
+    <button id="logoutBtn" style="padding:10px 20px; background:#ff3f6c; color:white; border:none; border-radius:5px; cursor:pointer;">Logout</button>
+</div>
+
+<script>
+const profileInfo = document.getElementById("profile-info");
+let currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
+if(currentUser){
+    profileInfo.innerHTML = `
+        <p><strong>Username:</strong> ${currentUser.username}</p>
+        <p><strong>Password:</strong> ${currentUser.password}</p>
+    `;
+}else{
+    profileInfo.innerHTML = "<p>No user logged in!</p>";
+}
+
+document.getElementById("logoutBtn").onclick = ()=>{
+    localStorage.removeItem("currentUser");
+    alert("Logged out successfully!");
+    window.location.href="signin.html";
+}
+</script>
+
+</body>
+</html>

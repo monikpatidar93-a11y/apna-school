@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Categories - Mini Flipkart</title>
+<link rel="stylesheet" href="style.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+/* Navbar */
+.navbar {
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #2874f0;
+    color: white;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.navbar h2 { margin:0; }
+.navbar input[type="text"] { flex:1; padding:8px; border-radius:4px; border:none; outline:none; }
+.navbar button { padding:8px 15px; background:#ff9f00; border:none; border-radius:4px; cursor:pointer; color:white; font-weight:bold; }
+.navbar a { color:white; text-decoration:none; margin-left:10px; }
+
+/* Categories */
+.categories { display:flex; flex-wrap:wrap; gap:20px; justify-content:center; margin:20px; }
+.category-card { flex:1 1 200px; text-align:center; padding:15px; background:white; border-radius:8px; cursor:pointer; box-shadow:0 4px 6px rgba(0,0,0,0.1); transition: transform 0.2s; }
+.category-card:hover { transform:scale(1.05); }
+.category-card img { width:150px; height:150px; object-fit:contain; }
+
+/* Products Grid */
+.products-grid { display:flex; flex-wrap:wrap; gap:20px; justify-content:center; margin:20px; }
+.item-card { background:white; padding:15px; border-radius:8px; text-align:center; box-shadow:0 4px 6px rgba(0,0,0,0.1); cursor:pointer; }
+.item-card img { width:150px; height:150px; object-fit:contain; }
+.item-card h4 { margin:10px 0; }
+.item-card p { font-weight:bold; color:#ff3f6c; }
+.item-card button { padding:8px 15px; border:none; border-radius:5px; background:#ff9f00; color:white; cursor:pointer; font-weight:bold; }
+.item-card button:hover { background:#fb641b; }
+
+/* Responsive */
+@media (max-width:768px) {
+    .category-card img, .item-card img { width:100px; height:100px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Navbar -->
+<div class="navbar">
+    <h2>Flipkart</h2>
+    <input type="text" id="searchInput" placeholder="Search products...">
+    <button onclick="searchProduct()">Search</button>
+    <span id="user-info"></span>
+    <a href="cart.html">Cart</a>
+    <button id="logout-btn">Logout</button>
+</div>
+
+<!-- Categories -->
+<h2 style="text-align:center; margin-top:20px;">Categories</h2>
+<div class="categories" id="categories-list"></div>
+
+<!-- Products -->
+<h2 style="text-align:center; margin-top:20px;">Products</h2>
+<div class="products-grid" id="category-products"></div>
+
+<script>
+// User Info
+let currentUser = JSON.parse(localStorage.getItem("currentUser"));
+const userInfo = document.getElementById("user-info");
+const logoutBtn = document.getElementById("logout-btn");
+if(userInfo){
+    if(currentUser) userInfo.innerText = "Welcome, "+currentUser.username;
+    else userInfo.innerHTML = `<a href="signin.html" style="color:white;">Sign In</a>`;
+}
+if(logoutBtn){
+    logoutBtn.onclick = ()=>{
+        localStorage.removeItem("currentUser");
+        location.reload();
+    }
+}
+
+// Load Products
+let products = JSON.parse(localStorage.getItem("products")) || [];
+const categories = [...new Set(products.map(p=>p.category))]; // unique categories
+
+const categoriesList = document.getElementById("categories-list");
+const categoryProducts = document.getElementById("category-products");
+
+// Render categories
+categories.forEach(cat=>{
+    const div = document.createElement("div");
+    div.className="category-card";
+    div.innerHTML = `
+        <img src="https://via.placeholder.com/150?text=${cat}" alt="${cat}">
+        <h4>${cat}</h4>
+    `;
+    div.onclick = ()=> renderCategoryProducts(cat);
+    categoriesList.appendChild(div);
+});
+
+// Render products of selected category
+function renderCategoryProducts(cat){
+    categoryProducts.innerHTML="";
+    const filtered = products.filter(p=>p.category===cat);
+    if(filtered.length===0){
+        categoryProducts.innerHTML="<p>No products found in this category.</p>";
+        return;
+    }
+    filtered.forEach(p=>{
+        const div = document.createElement("div");
+        div.className="item-card";
+        div.innerHTML = `
+            <img src="${p.image}" alt="${p.name}">
+            <h4>${p.name}</h4>
+            <p>₹${p.price}</p>
+            <button>Add to Cart</button>
+        `;
+        div.querySelector("button").onclick = e=>{
+            e.stopPropagation();
+            let cart = JSON.parse(localStorage.getItem("cart")) || [];
+            const found = cart.find(x=>x.id===p.id);
+            if(found) found.quantity+=1;
+            else cart.push({...p, quantity:1});
+            localStorage.setItem("cart", JSON.stringify(cart));
+            alert("Added to cart 🛒");
+        };
+        div.onclick = ()=> window.location.href="product.html?id="+p.id;
+        categoryProducts.appendChild(div);
+    });
+}
+
+// Search
+function searchProduct(){
+    const keyword = document.getElementById("searchInput").value.trim().toLowerCase();
+    if(!keyword) return alert("Enter product name");
+    localStorage.setItem("lastSearch", keyword);
+    const results = products.filter(p=>p.name.toLowerCase().includes(keyword));
+    localStorage.setItem("searchResults", JSON.stringify(results));
+    window.location.href="search.html";
+}
+</script>
+
+</body>
+</html>

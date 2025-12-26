@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Product Detail</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body{font-family:Arial;margin:0;padding:0;background:#f1f3f6;}
+.navbar{background:#2874f0;color:white;padding:10px 20px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.navbar input{flex:1;padding:8px;border-radius:4px;border:none;}
+.navbar button{padding:8px 15px;background:#ff9f00;border:none;border-radius:4px;cursor:pointer;color:white;font-weight:bold;}
+.navbar a{color:white;text-decoration:none;}
+#product-detail{display:flex;flex-wrap:wrap;gap:30px;padding:30px;background:white;justify-content:center;}
+.detail-img{max-width:400px;width:100%;border-radius:8px;box-shadow:0 4px 8px rgba(0,0,0,0.2);}
+.product-info{max-width:400px;}
+.product-info h2{margin-bottom:10px;}
+.price{font-size:22px;color:#ff5722;font-weight:bold;}
+.qty-box{display:flex;align-items:center;gap:15px;margin:15px 0;}
+.qty-box button{width:40px;height:40px;font-size:20px;border:none;background:#2874f0;color:white;border-radius:5px;cursor:pointer;}
+.add-btn,.buy-btn{padding:10px 20px;margin-right:10px;border:none;border-radius:5px;font-weight:bold;cursor:pointer;transition:transform 0.2s;}
+.add-btn{background:#ff9f00;color:white;}
+.add-btn:hover{transform:scale(1.05);}
+.buy-btn{background:#fb641b;color:white;}
+.buy-btn:hover{transform:scale(1.05);}
+</style>
+</head>
+<body>
+<div class="navbar">
+<h2>Flipkart</h2>
+<input type="text" id="searchInput" placeholder="Search products...">
+<button onclick="searchProduct()">Search</button>
+<span id="user-info"></span>
+<a href="cart.html">Cart</a>
+<button id="logout-btn">Logout</button>
+</div>
+
+<div id="product-detail"></div>
+
+<script>
+let products = JSON.parse(localStorage.getItem("products")) || [];
+let currentUser = JSON.parse(localStorage.getItem("currentUser"));
+if(!currentUser){window.location.href="signup.html";}
+document.getElementById("user-info").innerText = "Welcome, "+currentUser.username;
+document.getElementById("logout-btn").onclick = ()=>{localStorage.removeItem("currentUser");location.href="signup.html";};
+
+const params = new URLSearchParams(window.location.search);
+const productId = parseInt(params.get("id"));
+const product = products.find(p=>p.id===productId);
+
+const container = document.getElementById("product-detail");
+
+if(!product){container.innerHTML="<h2>❌ Product Not Found</h2>";}
+else{
+    let qty=1;
+    container.innerHTML=`
+        <img src="${product.image}" class="detail-img">
+        <div class="product-info">
+            <h2>${product.name}</h2>
+            <p class="price">₹${product.price}</p>
+            <div class="qty-box">
+                <button id="minus">-</button>
+                <span id="qty">1</span>
+                <button id="plus">+</button>
+            </div>
+            <button class="add-btn" id="addBtn">Add to Cart</button>
+            <button class="buy-btn" id="buyBtn">Buy Now</button>
+        </div>
+    `;
+
+    document.getElementById("plus").onclick = ()=>{qty++; document.getElementById("qty").innerText=qty;}
+    document.getElementById("minus").onclick = ()=>{if(qty>1) qty--; document.getElementById("qty").innerText=qty;}
+
+    document.getElementById("addBtn").onclick = ()=>{
+        let cart = JSON.parse(localStorage.getItem("cart_"+currentUser.username)) || [];
+        const found = cart.find(p=>p.id===product.id);
+        if(found) found.qty+=qty;
+        else cart.push({...product, qty});
+        localStorage.setItem("cart_"+currentUser.username, JSON.stringify(cart));
+        alert("Added to cart 🛒");
+    }
+
+    document.getElementById("buyBtn").onclick = ()=>{
+        let cart = JSON.parse(localStorage.getItem("cart_"+currentUser.username)) || [];
+        const found = cart.find(p=>p.id===product.id);
+        if(found) found.qty+=qty;
+        else cart.push({...product, qty});
+        localStorage.setItem("cart_"+currentUser.username, JSON.stringify(cart));
+        window.location.href="cart.html";
+    }
+
+    // Recently Viewed
+    let recentlyViewed = JSON.parse(localStorage.getItem("recentlyViewed_"+currentUser.username)) || [];
+    recentlyViewed = recentlyViewed.filter(p=>p.id!==product.id);
+    recentlyViewed.unshift(product);
+    if(recentlyViewed.length>5) recentlyViewed.pop();
+    localStorage.setItem("recentlyViewed_"+currentUser.username, JSON.stringify(recentlyViewed));
+}
+
+function searchProduct(){
+    const keyword=document.getElementById("searchInput").value.trim().toLowerCase();
+    if(!keyword) return alert("Enter product name");
+    const results = products.filter(p=>p.name.toLowerCase().includes(keyword));
+    localStorage.setItem("searchResults", JSON.stringify(results));
+    localStorage.setItem("lastSearch", keyword);
+    window.location.href="search.html";
+}
+</script>
+</body>
+</html>

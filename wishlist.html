@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Wishlist</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body { font-family: Arial; margin:0; background:#f1f3f6; }
+.navbar { background:#2874f0; color:white; padding:12px 20px; display:flex; align-items:center; gap:15px; }
+.navbar h2 { margin:0; }
+.navbar a { color:white; text-decoration:none; font-weight:bold; }
+.container { max-width:800px; margin:20px auto; background:white; padding:20px; border-radius:8px; }
+h2 { text-align:center; }
+.item-card { display:flex; gap:15px; border:1px solid #ccc; padding:10px; border-radius:5px; margin:10px 0; background:#fafafa; cursor:pointer; }
+.item-card img { width:80px; border-radius:5px; }
+.item-card button { padding:5px 10px; margin-left:auto; border:none; background:#ff9f00; color:white; cursor:pointer; border-radius:4px; }
+</style>
+</head>
+<body>
+
+<div class="navbar">
+<h2>Flipkart</h2>
+<a href="index.html">Home</a>
+<a href="cart.html">Cart</a>
+<a href="profile.html">Profile</a>
+</div>
+
+<div class="container">
+<h2>My Wishlist</h2>
+<div id="wishlistItems"></div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", ()=>{
+    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+    if(!currentUser) {
+        alert("Please login first");
+        window.location.href="login.html";
+    }
+
+    let wishlist = JSON.parse(localStorage.getItem("wishlist")) || {};
+    let items = wishlist[currentUser.username] || [];
+
+    const container = document.getElementById("wishlistItems");
+
+    if(items.length===0){
+        container.innerHTML="<p>Your wishlist is empty.</p>";
+    } else {
+        items.forEach((p,index)=>{
+            const div = document.createElement("div");
+            div.className="item-card";
+            div.innerHTML = `
+                <img src="${p.image}" alt="${p.name}">
+                <h4>${p.name}</h4>
+                <p>₹${p.price}</p>
+                <button onclick="removeFromWishlist(${index})">Remove</button>
+            `;
+            container.appendChild(div);
+        });
+    }
+
+    window.removeFromWishlist = function(index){
+        items.splice(index,1);
+        wishlist[currentUser.username] = items;
+        localStorage.setItem("wishlist", JSON.stringify(wishlist));
+        location.reload();
+    }
+});
+</script>
+</body>
+</html>

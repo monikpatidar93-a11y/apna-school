@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin - Add Products</title>
+<style>
+body{font-family:Arial;margin:0;padding:20px;background:#f1f3f6;}
+h2{text-align:center;}
+input,button{padding:8px;margin:5px;}
+.item-card{display:flex;align-items:center;gap:10px;margin:10px 0;background:white;padding:10px;border-radius:5px;}
+img{width:80px;height:80px;object-fit:cover;border-radius:5px;}
+</style>
+</head>
+<body>
+<h2>Admin Panel</h2>
+<div>
+<input type="text" id="productName" placeholder="Product Name">
+<input type="number" id="productPrice" placeholder="Product Price">
+<input type="text" id="productCategory" placeholder="Category">
+<input type="file" id="productImage">
+<button id="addProductBtn">Add Product</button>
+</div>
+
+<h3>Products List</h3>
+<div id="product-list"></div>
+
+<script>
+let products = JSON.parse(localStorage.getItem("products")) || [];
+
+function renderProducts(){
+    const list = document.getElementById("product-list");
+    list.innerHTML="";
+    products.forEach((p,i)=>{
+        const div = document.createElement("div");
+        div.className="item-card";
+        div.innerHTML = `<img src="${p.image}"><b>${p.name}</b> ₹${p.price} (${p.category}) 
+        <button onclick="editProduct(${i})">Edit</button>
+        <button onclick="deleteProduct(${i})">Delete</button>`;
+        list.appendChild(div);
+    });
+}
+
+document.getElementById("addProductBtn").onclick = ()=>{
+    const name = document.getElementById("productName").value.trim();
+    const price = parseFloat(document.getElementById("productPrice").value);
+    const category = document.getElementById("productCategory").value.trim();
+    const file = document.getElementById("productImage").files[0];
+
+    if(!name || !price || !category || !file) return alert("All fields required");
+
+    const reader = new FileReader();
+    reader.onload = function(){
+        const newProduct = {
+            id: Date.now(),
+            name,
+            price,
+            category,
+            image: reader.result
+        };
+        products.push(newProduct);
+        localStorage.setItem("products", JSON.stringify(products));
+        renderProducts();
+        document.getElementById("productName").value="";
+        document.getElementById("productPrice").value="";
+        document.getElementById("productCategory").value="";
+        document.getElementById("productImage").value="";
+        alert("Product Added!");
+    }
+    reader.readAsDataURL(file);
+}
+
+window.deleteProduct = function(i){
+    if(confirm("Delete this product?")){
+        products.splice(i,1);
+        localStorage.setItem("products", JSON.stringify(products));
+        renderProducts();
+    }
+}
+
+window.editProduct = function(i){
+    const p = products[i];
+    const name = prompt("Edit Name", p.name);
+    const price = prompt("Edit Price", p.price);
+    const category = prompt("Edit Category", p.category);
+    if(name && price && category){
+        products[i] = {...products[i], name, price:parseFloat(price), category};
+        localStorage.setItem("products", JSON.stringify(products));
+        renderProducts();
+    }
+}
+
+renderProducts();
+</script>
+</body>
+</html>

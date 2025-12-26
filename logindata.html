@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Saved Login Data</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 30px; background:#f0f2f5; }
+        table { border-collapse: collapse; width: 100%; background:white; box-shadow:0 5px 15px rgba(0,0,0,0.1); }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background: #2874f0; color: white; }
+        tr:hover { background: #f1f1f1; }
+        button { padding:5px 10px; margin-top: 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h2>All Saved Login Data</h2>
+    <table id="login-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Username</th>
+                <th>Password</th>
+                <th>Date & Time</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- JS will fill this -->
+        </tbody>
+    </table>
+
+    <button onclick="clearData()">Clear All Data</button>
+
+    <script>
+        function loadData(){
+            const loginData = JSON.parse(localStorage.getItem("loginData")) || [];
+            const tbody = document.querySelector("#login-table tbody");
+            tbody.innerHTML = "";
+
+            loginData.forEach((item, index) => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${item.username}</td>
+                    <td>${item.password}</td>
+                    <td>${item.date}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function clearData(){
+            if(confirm("Are you sure you want to clear all saved login data?")){
+                localStorage.removeItem("loginData");
+                loadData();
+            }
+        }
+
+        loadData();
+    </script>
+</body>
+</html>
