@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard - Student Portal</title>
+<style>
+body{margin:0;font-family:Arial;background:#f4f6fa;color:#222;}
+body.dark{background:#222;color:white;}
+.navbar{background:#007bff;color:white;padding:15px 20px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 8px rgba(0,0,0,0.2);}
+.navbar h2{margin:0;}
+.navbar button{padding:6px 12px;border:none;border-radius:5px;background:white;color:#007bff;cursor:pointer;}
+.box-container{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;padding:20px;}
+.box{background:white;padding:20px;border-radius:8px;box-shadow:0 0 10px rgba(0,0,0,0.2);cursor:pointer;transition:0.3s;}
+body.dark .box{background:#333;color:white;}
+.box:hover{transform:translateY(-5px);}
+.topic-area{padding:20px;display:none;}
+.topic{background:white;margin-bottom:10px;padding:10px;border-radius:5px;display:flex;justify-content:space-between;align-items:center;}
+body.dark .topic{background:#444;color:white;}
+.topic button{margin-left:5px;border:none;padding:5px 8px;cursor:pointer;border-radius:4px;}
+.add-btn{background:green;color:white;}
+.edit-btn{background:orange;color:white;}
+.delete-btn{background:red;color:white;}
+</style>
+</head>
+<body>
+
+<div class="navbar">
+  <h2>Dashboard</h2>
+  <div>
+    <button onclick="toggleDark()">Dark Mode</button>
+    <button onclick="logout()">Logout</button>
+  </div>
+</div>
+
+<div class="box-container" id="courseBox"></div>
+
+<div class="topic-area" id="topicArea">
+  <h3 id="courseName"></h3>
+  <button class="add-btn" onclick="addTopic()">+ Add Topic</button>
+  <div id="topicList"></div>
+</div>
+
+<script>
+// ======= LOGIN PROTECTION =======
+if(!localStorage.getItem("loginUser")){
+  localStorage.setItem("redirectAfterLogin","dashboard.html");
+  window.location="login.html";
+}
+
+// ======= DARK MODE =======
+function toggleDark(){
+  document.body.classList.toggle("dark");
+}
+
+// ======= LOGOUT =======
+function logout(){
+  localStorage.removeItem("loginUser");
+  localStorage.removeItem("rememberUser");
+  window.location="login.html";
+}
+
+// ======= COURSES DATA =======
+let courses = JSON.parse(localStorage.getItem("courses")) || [
+  {name:"HTML"},
+  {name:"CSS"},
+  {name:"JavaScript"},
+  {name:"Python"}
+];
+
+let selectedCourseIndex = null;
+
+// ======= LOAD COURSES =======
+function loadCourses(){
+  let boxHTML = "";
+  courses.forEach((c,i)=>{
+    boxHTML += `<div class="box" onclick="openCourse(${i})">${c.name}</div>`;
+  });
+  document.getElementById("courseBox").innerHTML = boxHTML;
+}
+
+loadCourses();
+
+// ======= OPEN COURSE =======
+function openCourse(i){
+  selectedCourseIndex = i;
+  document.getElementById("topicArea").style.display="block";
+  document.getElementById("courseName").innerText = courses[i].name;
+  loadTopics();
+}
+
+// ======= LOAD TOPICS =======
+function loadTopics(){
+  let topicHTML="";
+  let topics = courses[selectedCourseIndex].topics || [];
+  topics.forEach((t,i)=>{
+    topicHTML += `
+      <div class="topic">
+        <span onclick="openNotes(${i})">${t}</span>
+        <div>
+          <button class="edit-btn" onclick="renameTopic(${i})">Edit</button>
+          <button class="delete-btn" onclick="deleteTopic(${i})">X</button>
+        </div>
+      </div>
+    `;
+  });
+  document.getElementById("topicList").innerHTML = topicHTML;
+  saveData();
+}
+
+// ======= ADD TOPIC =======
+function addTopic(){
+  let name = prompt("Enter Topic Name");
+  if(!name) return;
+  if(!courses[selectedCourseIndex].topics) courses[selectedCourseIndex].topics=[];
+  courses[selectedCourseIndex].topics.push(name);
+  loadTopics();
+}
+
+// ======= RENAME TOPIC =======
+function renameTopic(i){
+  let newName = prompt("Enter New Topic Name");
+  if(!newName) return;
+  courses[selectedCourseIndex].topics[i] = newName;
+  loadTopics();
+}
+
+// ======= DELETE TOPIC =======
+function deleteTopic(i){
+  if(confirm("Delete this topic?")){
+    courses[selectedCourseIndex].topics.splice(i,1);
+    loadTopics();
+  }
+}
+
+// ======= OPEN NOTES =======
+function openNotes(i){
+  localStorage.setItem("currentCourse", selectedCourseIndex);
+  localStorage.setItem("currentTopic", i);
+  window.location="notes.html";
+}
+
+// ======= SAVE DATA =======
+function saveData(){
+  localStorage.setItem("courses", JSON.stringify(courses));
+}
+</script>
+
+</body>
+</html>

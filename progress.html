@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Progress</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+<div class="navbar">
+  <h2>My Progress</h2>
+  <a href="dashboard.html">⬅ Back</a>
+</div>
+
+<div class="progress-container" id="progressContainer"></div>
+
+<script>
+
+/* ============================
+   LOAD COURSES
+============================ */
+
+let courses = JSON.parse(localStorage.getItem("courses")) || [];
+
+/* ============================
+   RENDER PROGRESS
+============================ */
+
+function renderProgress(){
+  let box = document.getElementById("progressContainer");
+  box.innerHTML = "";
+
+  courses.forEach((course, index) => {
+
+    if(course.progress === undefined){
+      course.progress = 0;
+    }
+
+    let percent = Math.min(course.progress,100);
+
+    let div = document.createElement("div");
+    div.className = "progress-box";
+
+    div.innerHTML = `
+      <h3>${course.name}</h3>
+
+      <div class="circle">
+        <svg width="120" height="120">
+          <circle cx="60" cy="60" r="50"></circle>
+          <circle cx="60" cy="60" r="50" 
+          style="stroke-dashoffset:${314 - (314*percent/100)}"></circle>
+        </svg>
+        <span>${percent}%</span>
+      </div>
+
+      <input type="number" min="0" max="100" value="${percent}"
+      onchange="updateProgress(${index},this.value)">
+    `;
+
+    box.appendChild(div);
+  });
+
+  localStorage.setItem("courses", JSON.stringify(courses));
+}
+
+/* ============================
+   UPDATE PROGRESS
+============================ */
+
+function updateProgress(index,value){
+  let val = parseInt(value);
+  if(val>100) val=100;
+  if(val<0) val=0;
+
+  courses[index].progress = val;
+  renderProgress();
+}
+
+/* ============================
+   INIT
+============================ */
+
+renderProgress();
+
+</script>
+
+</body>
+</html>

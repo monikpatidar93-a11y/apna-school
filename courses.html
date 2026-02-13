@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fabric.js Editor - Unlimited Text</title>
+<style>
+html, body {
+  margin:0;
+  padding:0;
+  font-family:Arial;
+  background:#F0F4F8;
+  height:100%;
+  overflow-x:hidden;
+}
+
+body {
+  display:flex;
+  flex-direction:column;
+  min-height:100vh;
+}
+
+nav{
+  background:#0D3B66;
+  color:white;
+  padding:12px 25px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+nav .logo{
+  font-size:1.5rem;
+  font-weight:bold;
+}
+nav ul{
+  list-style:none;
+  display:flex;
+  gap:20px;
+  margin:0;
+  padding:0;
+}
+nav ul li a{
+  color:white;
+  text-decoration:none;
+  font-weight:bold;
+}
+nav ul li a:hover{
+  color:#F95738;
+}
+
+.page-container{
+  flex:1;
+  display:flex;
+  width:95%;
+  max-width:1600px;
+  margin:auto;
+  margin-top:20px;
+  gap:15px;
+  align-items:flex-start;
+}
+
+#topicsSection{
+  flex:1;
+  background:#118AB2;
+  padding:20px;
+  border-radius:12px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.1);
+  overflow-y:auto;
+  color:white;
+  max-height:calc(100vh - 80px);
+}
+
+#editorSection{
+  flex:3;
+  display:flex;
+  flex-direction:column;
+  overflow-y:auto;
+}
+
+#editorContainer{
+  background:white;
+  border:2px solid #0D3B66;
+  width:100%;
+  min-height:600px;
+  position:relative;
+  overflow-y:auto;
+}
+
+canvas{
+  border:none;
+}
+
+/* Buttons and items */
+.toggle-btn{
+  background:#0D3B66;
+  color:white;
+  border:none;
+  font-weight:bold;
+  padding:10px 14px;
+  cursor:pointer;
+  border-radius:8px;
+  font-size:18px;
+  position:fixed;
+  top:120px;
+  left:10px;
+  z-index:999;
+  transition:0.3s;
+}
+.toggle-btn:hover{
+  background:#F95738;
+}
+
+.item{
+  background:#06D6A0;
+  padding:10px;
+  border-radius:8px;
+  margin:8px 0;
+  cursor:pointer;
+  overflow:hidden;
+}
+.item:hover{
+  background:#FFD166;
+  color:black;
+}
+
+.create-section input{
+  padding:6px;
+  width:70%;
+  border-radius:6px;
+  border:1px solid #0D3B66;
+  margin-right:5px;
+}
+.create-section button{
+  padding:6px 10px;
+  border-radius:6px;
+  border:none;
+  background:#0D3B66;
+  color:white;
+  cursor:pointer;
+}
+.create-section button:hover{
+  background:#F95738;
+}
+
+.toolbar{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-bottom:5px;
+}
+
+.toolbar button, .toolbar select, .toolbar input[type=color]{
+  padding:6px 10px;
+  border-radius:6px;
+  border:1px solid #0D3B66;
+  cursor:pointer;
+}
+.toolbar button:hover{
+  background:#F95738;
+  color:white;
+}
+
+/* Scrollbar Styling */
+#topicsSection::-webkit-scrollbar, #editorSection::-webkit-scrollbar {
+  width: 12px;
+}
+
+#topicsSection::-webkit-scrollbar-track, #editorSection::-webkit-scrollbar-track {
+  background: #a8dadc;
+  border-radius: 6px;
+}
+
+#topicsSection::-webkit-scrollbar-thumb, #editorSection::-webkit-scrollbar-thumb {
+  background: #023E8A;
+  border-radius: 6px;
+}
+
+#topicsSection::-webkit-scrollbar-thumb:hover, #editorSection::-webkit-scrollbar-thumb:hover {
+  background: #F95738;
+}
+</style>
+</head>
+<body>
+
+<nav>
+<div class="logo">Apna School Mini Word</div>
+<ul>
+<li><a href="index.html">Home</a></li>
+<li><a href="notes.html">Notes Page</a></li>
+</ul>
+</nav>
+
+<button class="toggle-btn" onclick="toggleTopics()"><span id="toggleIcon">◀</span></button>
+
+<div class="page-container">
+    <div id="topicsSection">
+        <h2>Topics</h2>
+        <div class="create-section">
+            <input type="text" id="newTopic" placeholder="Enter topic name">
+            <button onclick="addTopic()">Add</button>
+        </div>
+        <div id="topicsList"></div>
+    </div>
+
+    <div id="editorSection">
+        <div class="toolbar">
+            <button onclick="addText()">Add Text</button>
+            <input type="color" id="textColor" onchange="changeColor(this.value)">
+            <select onchange="changeFontSize(this.value)">
+                <option value="">Font Size</option>
+                <option value="20">20</option>
+                <option value="30">30</option>
+                <option value="40">40</option>
+                <option value="50">50</option>
+                <option value="60">60</option>
+            </select>
+            <button onclick="toggleBold()">Bold</button>
+            <button onclick="toggleItalic()">Italic</button>
+            <input type="file" id="imgUpload" accept="image/*" onchange="insertImage(event)">
+            <button onclick="saveDocument()">Save Doc</button>
+        </div>
+        <div id="editorContainer">
+            <canvas id="c" width="1200" height="800"></canvas> <!-- initial canvas height -->
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.2.4/fabric.min.js"></script>
+<script>
+// Fabric.js Canvas
+const canvas = new fabric.Canvas('c', { backgroundColor:'#ffffff', selection:true });
+
+// Load saved document
+const currentCourse = localStorage.getItem('currentCourse') || 'defaultDoc';
+if(localStorage.getItem('doc_'+currentCourse)){
+    canvas.loadFromJSON(localStorage.getItem('doc_'+currentCourse), canvas.renderAll.bind(canvas));
+}
+
+// TEXT FUNCTIONS
+function addText(){
+  const txt = new fabric.IText('Your Text', { left:50, top:50, fontSize:30, fill:'#000', width:1100 });
+  canvas.add(txt).setActiveObject(txt);
+  adjustCanvasHeight(txt);
+}
+
+// Automatically expand canvas when text goes beyond current height
+function adjustCanvasHeight(obj){
+  const bottom = obj.top + obj.height * obj.scaleY;
+  if(bottom + 100 > canvas.height){ // add 100px padding
+      canvas.setHeight(bottom + 100);
+      document.getElementById('editorContainer').scrollTop = canvas.height;
+  }
+}
+
+// Update text width dynamically
+canvas.on('object:modified', function(e){
+    const obj = e.target;
+    if(obj.type === 'i-text'){
+        obj.set({ width:1100 });
+        adjustCanvasHeight(obj);
+        canvas.renderAll();
+    }
+});
+
+function changeColor(color){
+  const obj = canvas.getActiveObject();
+  if(obj && obj.type === 'i-text'){ obj.set({ fill: color }); canvas.renderAll(); }
+}
+function changeFontSize(size){
+  const obj = canvas.getActiveObject();
+  if(obj && obj.type === 'i-text'){ obj.set({ fontSize: parseInt(size) }); adjustCanvasHeight(obj); canvas.renderAll(); }
+}
+function toggleBold(){
+  const obj = canvas.getActiveObject();
+  if(obj && obj.type === 'i-text'){ obj.set({ fontWeight: obj.fontWeight=='bold'?'normal':'bold' }); adjustCanvasHeight(obj); canvas.renderAll(); }
+}
+function toggleItalic(){
+  const obj = canvas.getActiveObject();
+  if(obj && obj.type === 'i-text'){ obj.set({ fontStyle: obj.fontStyle=='italic'?'normal':'italic' }); adjustCanvasHeight(obj); canvas.renderAll(); }
+}
+
+// IMAGE INSERT
+function insertImage(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e){
+    fabric.Image.fromURL(e.target.result, img=>{
+      img.set({ left:80, top:80 });
+      img.scaleToWidth(400);
+      adjustCanvasHeight(img);
+      canvas.add(img).setActiveObject(img);
+    });
+  }
+  reader.readAsDataURL(file);
+}
+
+// SAVE DOCUMENT
+function saveDocument(){
+  localStorage.setItem('doc_'+currentCourse, JSON.stringify(canvas));
+  alert('Document saved successfully!');
+}
+
+// TOPICS FUNCTIONS
+function loadTopics(){
+  let topics=JSON.parse(localStorage.getItem('topics'))||[];
+  const list = document.getElementById('topicsList');
+  list.innerHTML='';
+  topics.forEach(t=>{
+    const div = document.createElement('div'); div.className='item'; div.textContent=t;
+    div.onclick = ()=>{
+      localStorage.setItem('currentCourse', t);
+      location.reload();
+    }
+    list.appendChild(div);
+  });
+}
+function addTopic(){
+  const val=document.getElementById('newTopic').value.trim();
+  if(!val) return;
+  let topics=JSON.parse(localStorage.getItem('topics'))||[];
+  topics.push(val);
+  localStorage.setItem('topics',JSON.stringify(topics));
+  document.getElementById('newTopic').value='';
+  loadTopics();
+}
+loadTopics();
+
+// SLIDER TOGGLE
+let topicsVisible=true;
+function toggleTopics(){
+  topicsVisible=!topicsVisible;
+  const sec=document.getElementById('topicsSection');
+  const icon=document.getElementById('toggleIcon');
+  if(topicsVisible){ sec.style.display='block'; icon.textContent='◀'; }
+  else{ sec.style.display='none'; icon.textContent='▶'; }
+}
+</script>
+
+</body>
+</html>

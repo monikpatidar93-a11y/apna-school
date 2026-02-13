@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign Up</title>
+<style>
+body{ font-family:Arial; display:flex; justify-content:center; align-items:center; height:100vh; background:#f0f4f8; }
+.container{ background:white; padding:30px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.2); }
+input{ display:block; width:100%; padding:10px; margin:10px 0; border-radius:6px; border:1px solid #0077b6; }
+button{ padding:10px 15px; border:none; background:#0077b6; color:white; cursor:pointer; border-radius:6px; }
+button:hover{ background:#0096c7; }
+a{ text-decoration:none; color:#0077b6; }
+</style>
+</head>
+<body>
+<div class="container">
+<h2>Sign Up</h2>
+<input type="text" id="name" placeholder="Name">
+<input type="email" id="email" placeholder="Email">
+<input type="password" id="password" placeholder="Password">
+<button onclick="signUp()">Sign Up</button>
+<p>Already have account? <a href="login.html">Login</a></p>
+</div>
+
+<script>
+function signUp(){
+    const name=document.getElementById('name').value.trim();
+    const email=document.getElementById('email').value.trim();
+    const password=document.getElementById('password').value;
+
+    if(!name || !email || !password){ alert('Please fill all fields'); return; }
+
+    let users=JSON.parse(localStorage.getItem('users')) || [];
+    if(users.find(u=>u.email===email)){ alert('Email already registered'); return; }
+
+    users.push({ name,email,password });
+    localStorage.setItem('users',JSON.stringify(users));
+    alert('Sign Up Successful! You can login now.');
+    window.location.href='login.html';
+}
+</script>
+</body>
+</html>

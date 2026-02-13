@@ -1,0 +1,115 @@
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,Helvetica,sans-serif;
+}
+
+body{
+background:#0f172a;
+color:white;
+}
+
+/* MAIN LAYOUT */
+.workspace{
+display:flex;
+height:100vh;
+}
+
+/* LEFT SIDE */
+.left{
+width:260px;
+background:#020617;
+padding:20px;
+overflow:auto;
+}
+
+.left h3{
+margin-bottom:10px;
+color:#38bdf8;
+}
+
+.left input{
+width:100%;
+padding:10px;
+margin:10px 0;
+border:none;
+border-radius:5px;
+background:#1e293b;
+color:white;
+}
+
+.left button{
+width:100%;
+padding:10px;
+background:#2563eb;
+border:none;
+border-radius:5px;
+color:white;
+cursor:pointer;
+}
+
+/* TOPIC LIST */
+.left ul{
+list-style:none;
+margin-top:10px;
+}
+
+.left li{
+background:#1e293b;
+padding:10px;
+margin-bottom:8px;
+border-radius:5px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+/* RIGHT SIDE */
+.right{
+flex:1;
+padding:20px;
+background:#0f172a;
+}
+
+/* TOOLBAR */
+.toolbar{
+background:#020617;
+padding:10px;
+border-radius:5px;
+margin-bottom:10px;
+}
+
+.toolbar button{
+padding:6px 10px;
+margin:3px;
+background:#2563eb;
+border:none;
+color:white;
+border-radius:4px;
+cursor:pointer;
+}
+
+.toolbar input{
+margin-left:5px;
+}
+
+/* EDITOR */
+#editor{
+background:#020617;
+min-height:400px;
+padding:15px;
+border-radius:5px;
+outline:none;
+}
+
+/* SAVE BUTTONS */
+.right button{
+margin-top:10px;
+padding:10px 15px;
+background:#22c55e;
+border:none;
+border-radius:5px;
+color:black;
+cursor:pointer;
+}

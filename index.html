@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apna School</title>
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+background:#f0f4f8;
+color:#023e8a;
+text-align:center;
+}
+
+/* Navbar */
+nav{
+background:#0077b6;
+padding:15px 30px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+position:sticky;
+top:0;
+z-index:100;
+}
+
+.logo{
+font-size:1.8rem;
+font-weight:bold;
+color:white;
+}
+
+nav ul{
+list-style:none;
+display:flex;
+gap:20px;
+align-items:center;
+}
+
+nav ul li a{
+color:white;
+text-decoration:none;
+font-weight:bold;
+}
+
+nav ul li a:hover{
+color:#90e0ef;
+}
+
+nav img{
+width:40px;
+height:40px;
+border-radius:50%;
+cursor:pointer;
+border:2px solid white;
+}
+
+/* Slider */
+.slider{
+position:fixed;
+top:0;
+right:-260px;
+width:260px;
+height:100%;
+background:#0077b6;
+padding:20px;
+transition:0.4s;
+z-index:200;
+}
+
+.closeBtn{
+color:white;
+font-size:28px;
+cursor:pointer;
+float:right;
+}
+
+.slider-profile{
+text-align:center;
+margin-bottom:20px;
+}
+
+.slider-profile img{
+width:90px;
+height:90px;
+border-radius:50%;
+border:3px solid white;
+}
+
+.slider-profile h3{
+color:white;
+margin-top:10px;
+}
+
+.edit-btn{
+margin-top:10px;
+padding:6px 12px;
+background:#90e0ef;
+border:none;
+border-radius:5px;
+cursor:pointer;
+}
+
+.slider a{
+display:block;
+color:white;
+padding:12px;
+text-decoration:none;
+border-bottom:1px solid rgba(255,255,255,0.3);
+}
+
+.slider a:hover{
+background:#023e8a;
+}
+
+/* Hero */
+.hero{
+height:60vh;
+background:linear-gradient(135deg,#caf0f8,#90e0ef);
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+}
+
+.hero img{
+width:110px;
+}
+
+.hero h1{
+font-size:3rem;
+}
+
+.hero p{
+margin:15px 0;
+}
+
+/* Courses */
+.courses{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+gap:20px;
+padding:20px;
+}
+
+.course-box{
+background:#90e0ef;
+padding:20px;
+border-radius:10px;
+cursor:pointer;
+}
+
+.course-box:hover{
+background:#48cae4;
+}
+
+/* Progress */
+.progress-container{
+width:100%;
+background:#caf0f8;
+border-radius:10px;
+overflow:hidden;
+margin-top:10px;
+}
+
+.progress-bar{
+height:18px;
+background:#0077b6;
+color:white;
+font-size:12px;
+line-height:18px;
+}
+
+/* Footer */
+footer{
+background:#0077b6;
+color:white;
+padding:15px;
+margin-top:40px;
+}
+</style>
+</head>
+
+<body>
+
+<script>
+const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+if(!currentUser){
+alert("Please login first!");
+window.location.href="login.html";
+}
+</script>
+
+<!-- Navbar -->
+<nav>
+<div class="logo">Apna School</div>
+
+<ul>
+<li><a href="index.html">Home</a></li>
+<li><a href="course.html">Courses</a></li>
+<li><a href="notes.html">Notes</a></li>
+<li>
+<img id="navProfile" src="https://via.placeholder.com/40" onclick="openSlider()">
+</li>
+</ul>
+</nav>
+
+<!-- Slider -->
+<div id="sliderMenu" class="slider">
+
+<span class="closeBtn" onclick="closeSlider()">×</span>
+
+<div class="slider-profile">
+<img id="sliderPic" src="https://via.placeholder.com/90">
+<h3 id="sliderName"></h3>
+
+<input type="file" id="uploadPic" accept="image/*" hidden>
+<button class="edit-btn" onclick="window.location.href='profile.html'">Edit Profile</button>
+</div>
+
+<a href="profile.html">My Profile</a>
+<a href="course.html">My Courses</a>
+<a href="notes.html">Notes</a>
+<a href="chat.html">Chat</a>
+<a href="index.html">Dashboard</a>
+<a href="#" onclick="logout()">Logout</a>
+
+</div>
+
+<!-- Hero -->
+<section class="hero">
+<img src="https://via.placeholder.com/120x120.png?text=Logo">
+<h1>Welcome, <span id="userName"></span></h1>
+<p>Learn Anytime | Anywhere</p>
+</section>
+
+<!-- Courses -->
+<h2>All Courses</h2>
+<div class="courses" id="userCourses"></div>
+
+<!-- Footer -->
+<footer>
+&copy; 2026 Apna School
+</footer>
+
+<script>
+// Show User Name
+document.getElementById("userName").innerText = currentUser.name;
+document.getElementById("sliderName").innerText = currentUser.name;
+
+// Slider Open Close
+function openSlider(){
+document.getElementById("sliderMenu").style.right="0";
+}
+
+function closeSlider(){
+document.getElementById("sliderMenu").style.right="-260px";
+}
+
+// Logout
+function logout(){
+localStorage.removeItem("currentUser");
+window.location.href="login.html";
+}
+
+// Load Profile Pic
+const savedPic = localStorage.getItem("profilePic");
+if(savedPic){
+document.getElementById("sliderPic").src=savedPic;
+document.getElementById("navProfile").src=savedPic;
+}
+
+// Upload New Pic
+document.getElementById("uploadPic").addEventListener("change",function(){
+const file=this.files[0];
+const reader=new FileReader();
+reader.onload=function(){
+localStorage.setItem("profilePic",reader.result);
+document.getElementById("sliderPic").src=reader.result;
+document.getElementById("navProfile").src=reader.result;
+}
+reader.readAsDataURL(file);
+});
+
+// Load Courses
+function loadCourses(){
+const box=document.getElementById("userCourses");
+box.innerHTML="";
+
+const allCourses=JSON.parse(localStorage.getItem("userCourses"))||{};
+const progressData=JSON.parse(localStorage.getItem("courseProgress"))||{};
+const userCourses=allCourses[currentUser.email]||[];
+
+userCourses.forEach(course=>{
+const percent=progressData[course]||0;
+
+const div=document.createElement("div");
+div.className="course-box";
+
+div.innerHTML=`
+<h3>${course}</h3>
+<div class="progress-container">
+<div class="progress-bar" style="width:${percent}%">${percent}%</div>
+</div>
+`;
+
+div.onclick=function(){
+localStorage.setItem("currentCourse",course);
+window.location.href="course.html";
+}
+
+box.appendChild(div);
+});
+}
+
+loadCourses();
+</script>
+
+</body>
+</html>

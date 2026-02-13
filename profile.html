@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Profile</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial;}
+
+body{
+background:#f0f4f8;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+}
+
+.dark{
+background:#121212;
+color:white;
+}
+
+.profile-box{
+background:white;
+width:380px;
+padding:25px;
+border-radius:10px;
+box-shadow:0 0 10px rgba(0,0,0,0.2);
+text-align:center;
+}
+
+.dark .profile-box{
+background:#1f1f1f;
+}
+
+.profile-box img{
+width:100px;
+height:100px;
+border-radius:50%;
+border:3px solid #0077b6;
+}
+
+input,textarea{
+width:100%;
+padding:10px;
+margin:8px 0;
+border-radius:5px;
+border:1px solid #ccc;
+}
+
+button{
+width:100%;
+padding:10px;
+margin-top:8px;
+border:none;
+border-radius:5px;
+background:#0077b6;
+color:white;
+font-size:16px;
+cursor:pointer;
+}
+
+button:hover{background:#023e8a;}
+
+.red{background:#d00000;}
+.gray{background:#777;}
+.toggle{
+display:flex;
+align-items:center;
+justify-content:space-between;
+margin:10px 0;
+}
+</style>
+</head>
+
+<body>
+
+<div class="profile-box">
+
+<h2>My Profile</h2>
+
+<img id="profileImg" src="https://via.placeholder.com/100">
+<input type="file" id="uploadPic">
+
+<input id="name" placeholder="Name">
+<input id="email" placeholder="Email">
+<input id="password" type="password" placeholder="New Password">
+
+<textarea id="bio" placeholder="About Me"></textarea>
+
+<div class="toggle">
+<label>Dark Mode</label>
+<input type="checkbox" id="darkToggle">
+</div>
+
+<button onclick="saveProfile()">Save Profile</button>
+<button class="gray" onclick="goBack()">Back</button>
+<button class="red" onclick="deleteAccount()">Delete Account</button>
+
+</div>
+
+<script>
+const currentUser=JSON.parse(localStorage.getItem("currentUser"));
+if(!currentUser){
+alert("Login First");
+window.location.href="login.html";
+}
+
+document.getElementById("name").value=currentUser.name;
+document.getElementById("email").value=currentUser.email;
+
+const savedPic=localStorage.getItem("profilePic");
+if(savedPic){
+document.getElementById("profileImg").src=savedPic;
+}
+
+const bio=localStorage.getItem("bio");
+if(bio){
+document.getElementById("bio").value=bio;
+}
+
+const darkMode=localStorage.getItem("darkMode");
+if(darkMode==="on"){
+document.body.classList.add("dark");
+document.getElementById("darkToggle").checked=true;
+}
+
+document.getElementById("uploadPic").addEventListener("change",function(){
+const reader=new FileReader();
+reader.onload=()=>document.getElementById("profileImg").src=reader.result;
+reader.readAsDataURL(this.files[0]);
+});
+
+document.getElementById("darkToggle").addEventListener("change",function(){
+if(this.checked){
+document.body.classList.add("dark");
+localStorage.setItem("darkMode","on");
+}else{
+document.body.classList.remove("dark");
+localStorage.setItem("darkMode","off");
+}
+});
+
+function saveProfile(){
+currentUser.name=name.value;
+currentUser.email=email.value;
+localStorage.setItem("currentUser",JSON.stringify(currentUser));
+localStorage.setItem("profilePic",profileImg.src);
+localStorage.setItem("bio",bio.value);
+
+if(password.value!=""){
+let users=JSON.parse(localStorage.getItem("users"))||[];
+users=users.map(u=>{
+if(u.email==currentUser.email){
+u.password=password.value;
+}
+return u;
+});
+localStorage.setItem("users",JSON.stringify(users));
+}
+
+alert("Profile Updated!");
+window.location.href="index.html";
+}
+
+function deleteAccount(){
+if(confirm("Are you sure?")){
+localStorage.clear();
+window.location.href="login.html";
+}
+}
+
+function goBack(){
+window.location.href="index.html";
+}
+</script>
+
+</body>
+</html>

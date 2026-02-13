@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Courses & Notes - Apna School</title>
+<style>
+body{ font-family:Arial; background:#f0f4f8; margin:0; padding:0; color:#023e8a;}
+nav{ background:#0077b6; color:white; display:flex; justify-content:space-between; align-items:center; padding:15px 30px;}
+nav .logo{ font-size:1.8rem; font-weight:bold;}
+nav ul{ list-style:none; display:flex; gap:25px; margin:0; padding:0;}
+nav ul li a{ color:white; text-decoration:none; font-weight:bold;}
+nav ul li a:hover{ color:#90e0ef;}
+.container{ display:flex; gap:20px; width:90%; max-width:1200px; margin:auto; margin-top:20px;}
+.section{ flex:1; background:white; padding:20px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1);}
+h2{ margin-top:0; color:#0077b6; text-align:center; }
+.item{ background:#90e0ef; padding:10px; border-radius:8px; margin:8px 0; display:flex; justify-content:space-between; align-items:center; cursor:pointer; transition:0.3s;}
+.item:hover{ background:#48cae4; }
+.item button{ margin-left:5px; padding:3px 6px; border:none; border-radius:4px; cursor:pointer; font-size:0.8rem; font-weight:bold;}
+.delete-btn{ background:red; color:white; }
+.rename-btn{ background:orange; color:white; }
+.create-section input{ padding:8px; width:65%; border-radius:6px; border:1px solid #0077b6; margin-right:5px;}
+.create-section button{ padding:8px 12px; background:#0077b6; color:white; border:none; border-radius:6px; cursor:pointer;}
+@media(max-width:900px){ .container{ flex-direction:column; } }
+</style>
+</head>
+<body>
+
+<nav>
+<div class="logo">Apna School</div>
+<ul>
+<li><a href="index.html">Home</a></li>
+<li><a href="courses.html">Courses Page</a></li>
+<li><a href="notes.html">Notes Page</a></li>
+</ul>
+</nav>
+
+<h1 style="text-align:center;">Manage Courses & Notes</h1>
+
+<div class="container">
+    <!-- Courses Section -->
+    <div class="section">
+        <h2>Courses</h2>
+        <div class="create-section">
+            <input type="text" id="newCourse" placeholder="Enter course name">
+            <button onclick="addCourse()">Add</button>
+        </div>
+        <div id="coursesList"></div>
+    </div>
+
+    <!-- Notes Section -->
+    <div class="section">
+        <h2>Notes</h2>
+        <div class="create-section">
+            <input type="text" id="newNote" placeholder="Enter note name">
+            <button onclick="addNote()">Add</button>
+        </div>
+        <div id="notesList"></div>
+    </div>
+</div>
+
+<script>
+const coursesList=document.getElementById('coursesList');
+const notesList=document.getElementById('notesList');
+
+// Load Data from LocalStorage
+function loadData(){
+    let courses=JSON.parse(localStorage.getItem('courses'))||[];
+    let notes=JSON.parse(localStorage.getItem('notes'))||[];
+    coursesList.innerHTML=''; notesList.innerHTML='';
+    courses.forEach(c=>createCourseItem(c));
+    notes.forEach(n=>createNoteItem(n));
+}
+
+// Courses
+function createCourseItem(name){
+    const div=document.createElement('div'); div.className='item';
+    div.innerHTML=`<span>${name}</span>`;
+    
+    const renameBtn=document.createElement('button'); renameBtn.className='rename-btn'; renameBtn.textContent='Rename';
+    renameBtn.onclick=(e)=>{ e.stopPropagation(); renameCourse(name);}
+    const delBtn=document.createElement('button'); delBtn.className='delete-btn'; delBtn.textContent='Delete';
+    delBtn.onclick=(e)=>{ e.stopPropagation(); deleteCourse(name);}
+
+    div.appendChild(renameBtn); div.appendChild(delBtn);
+    div.onclick=()=>{ window.location.href='courses.html'; } // redirect on click
+    coursesList.appendChild(div);
+}
+
+function addCourse(){
+    const input=document.getElementById('newCourse'); const name=input.value.trim();
+    if(!name){ alert('Enter course name'); return; }
+    let courses=JSON.parse(localStorage.getItem('courses'))||[];
+    if(!courses.includes(name)) courses.push(name);
+    localStorage.setItem('courses',JSON.stringify(courses));
+    createCourseItem(name); input.value='';
+}
+
+function deleteCourse(name){
+    let courses=JSON.parse(localStorage.getItem('courses'))||[];
+    courses=courses.filter(c=>c!==name); localStorage.setItem('courses',JSON.stringify(courses));
+    loadData();
+}
+
+function renameCourse(oldName){
+    let newName=prompt('Enter new course name',oldName); if(!newName) return; newName=newName.trim();
+    let courses=JSON.parse(localStorage.getItem('courses'))||[];
+    courses=courses.map(c=>c===oldName?newName:c); localStorage.setItem('courses',JSON.stringify(courses));
+    loadData();
+}
+
+// Notes
+function createNoteItem(name){
+    const div=document.createElement('div'); div.className='item';
+    div.innerHTML=`<span>${name}</span>`;
+    
+    const renameBtn=document.createElement('button'); renameBtn.className='rename-btn'; renameBtn.textContent='Rename';
+    renameBtn.onclick=(e)=>{ e.stopPropagation(); renameNote(name);}
+    const delBtn=document.createElement('button'); delBtn.className='delete-btn'; delBtn.textContent='Delete';
+    delBtn.onclick=(e)=>{ e.stopPropagation(); deleteNote(name);}
+
+    div.appendChild(renameBtn); div.appendChild(delBtn);
+    div.onclick=()=>{ window.location.href='notes.html'; } // redirect on click
+    notesList.appendChild(div);
+}
+
+function addNote(){
+    const input=document.getElementById('newNote'); const name=input.value.trim();
+    if(!name){ alert('Enter note name'); return; }
+    let notes=JSON.parse(localStorage.getItem('notes'))||[];
+    if(!notes.includes(name)) notes.push(name);
+    localStorage.setItem('notes',JSON.stringify(notes));
+    createNoteItem(name); input.value='';
+}
+
+function deleteNote(name){
+    let notes=JSON.parse(localStorage.getItem('notes'))||[];
+    notes=notes.filter(n=>n!==name); localStorage.setItem('notes',JSON.stringify(notes));
+    loadData();
+}
+
+function renameNote(oldName){
+    let newName=prompt('Enter new note name',oldName); if(!newName) return; newName=newName.trim();
+    let notes=JSON.parse(localStorage.getItem('notes'))||[];
+    notes=notes.map(n=>n===oldName?newName:n); localStorage.setItem('notes',JSON.stringify(notes));
+    loadData();
+}
+
+loadData();
+</script>
+
+</body>
+</html>
